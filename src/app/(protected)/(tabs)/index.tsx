@@ -2,28 +2,14 @@
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import PostListItem from '../../../components/PostListItem';
 import { supabase } from '../../../lib/supabase'
-import { useEffect, useState } from 'react';
-import { Tables } from '../../../types/database.types';
 import { useQuery } from '@tanstack/react-query'
-
-type Post = Tables<'posts'> & {
-    user: Tables<'users'>;
-    group: Tables<'groups'>;
-}
-
-const fetchPost = async () => {
-    const { data, error } = await supabase.from('posts').select('*, group:groups(*), user:users!posts_user_id_fkey(*)');
-    if (error) {
-        throw(error)
-    } else {
-        return data;
-    }
-};
+import { fetchPost } from '../../../services/postService'
 
 export default function HomeScreen() {
-    const { data: posts, isLoading, error } = useQuery({
+    const { data: posts, isLoading, error, refetch, isRefetching } = useQuery({
         queryKey: ['posts'],
-        queryFn: () => fetchPost()
+        queryFn: () => fetchPost(),
+        staleTime: 10000
     });
 
     if(isLoading){
@@ -38,6 +24,8 @@ export default function HomeScreen() {
             <FlatList
                 data={posts}
                 renderItem={({ item }) => <PostListItem post={item}/>}    
+                onRefresh={refetch}
+                refreshing={isRefetching}
             />
         </View>
     )

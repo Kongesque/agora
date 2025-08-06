@@ -1,21 +1,43 @@
-import { View, Text, SafeAreaView, TextInput, FlatList, Pressable, Image } from 'react-native'
+import { View, Text, SafeAreaView, TextInput, FlatList, Pressable, Image, ActivityIndicator } from 'react-native'
 import { AntDesign } from '@expo/vector-icons'
 import { router } from 'expo-router'
 import { useState } from 'react'
-import groups from '../../../assets/data/groups.json'
+//import groups from '../../../assets/data/groups.json'
 import { useSetAtom } from 'jotai'
 import { selectedGroupAtom } from '../../atoms'
-import { Group } from '../../types';
+// import { Group } from '../../types';
+import { useQuery } from '@tanstack/react-query'
+import { fetchGroup } from '../../services/groupService'
+import { Tables } from '../../types/database.types'
+
+type Group = Tables<"groups">;
 
 export default function GroupSelector() {
     const [searchValue, setSearchValue] = useState<string>("")
     const setGroup = useSetAtom(selectedGroupAtom)
 
-    const filteredGroups = groups.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase()))
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['groups', {searchValue}],
+        queryFn: () => fetchGroup(searchValue),
+        staleTime: 10_000,
+        placeholderData: (previousData) => previousData,
+    })
+
     const onGroupSelected = (group: Group) => {
         setGroup(group);
         router.back()
     }
+
+
+    if(isLoading) {
+        return <ActivityIndicator/>
+    }
+    if(error || !data) {
+        return <Text> Error Fetching Groups</Text>
+    }
+
+    // const filteredGroups = data.filter((group) => group.name.toLowerCase().includes(searchValue.toLowerCase()))
+
 
     return (
         <SafeAreaView style={{ marginHorizontal: 10, flex: 1 }}>
@@ -68,7 +90,7 @@ export default function GroupSelector() {
         </View>
 
         <FlatList
-            data={filteredGroups}
+            data={data}
             renderItem={({item}) => ( 
                 <Pressable
                     onPress={() => onGroupSelected(item)}
