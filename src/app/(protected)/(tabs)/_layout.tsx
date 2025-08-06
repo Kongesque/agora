@@ -1,17 +1,29 @@
 import { Tabs } from "expo-router";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function TabLayout() {
+  const { signOut } = useAuth()
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: 'black'
+        tabBarActiveTintColor: 'black',
+        headerRight: () =>
+          <Feather
+            name="log-out"
+            size={22}
+            color="black"
+            style={{ paddingRight: 10 }} 
+            onPress={() => signOut()}
+          />
+
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          headerTitle: 'Reddit',
+          headerTitle: 'Agora',
           title: 'Home',
           headerTintColor: "#FF5700",
           tabBarIcon: ({ color }) => <AntDesign name="home" size={24} color={color} />,
@@ -29,6 +41,8 @@ export default function TabLayout() {
         options={{
           title: 'Create',
           tabBarIcon: ({ color }) => <AntDesign name="plus" size={24} color={color} />,
+          headerShown: false,
+          tabBarStyle: { display: 'none'}
         }}
       />
       <Tabs.Screen

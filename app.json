@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "reddit",
-    "slug": "reddit",
-    "scheme": "reddit-app",
+    "name": "agora",
+    "slug": "agora",
+    "scheme": "agora-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
