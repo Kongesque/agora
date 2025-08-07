@@ -6,12 +6,13 @@ import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { selectedGroupAtom } from '../../../atoms'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../../lib/supabase'
-import { TablesInsert } from '../../../types/database.types'
+import { useSupabase } from '../../../lib/supabase'
+import { Database, TablesInsert } from '../../../types/database.types'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 type insertPost = TablesInsert<'posts'>
 
-const insertPost = async (post: insertPost) => {
+const insertPost = async (post: insertPost, supabase: SupabaseClient<Database>) => {
       // use supabase to insert a new post
       const {data, error} = await supabase.from("posts").insert(post)
       .select()
@@ -26,6 +27,7 @@ export default function CreateScreen() {
   const [group, setGroup] = useAtom(selectedGroupAtom)
 
   const queryClient = useQueryClient();
+  const supabase = useSupabase();
 
   const { mutate, isPending} = useMutation({
     mutationFn: async () => {
@@ -39,8 +41,9 @@ export default function CreateScreen() {
         title, 
         description: bodyText,
         group_id: group.id,
-        user_id: "58efe0dc-9347-48b6-84d7-44131bf87cca",
-      });
+      },
+      supabase
+    );
     },
       
     onSuccess: (data) => {

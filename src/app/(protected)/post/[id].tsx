@@ -8,14 +8,16 @@ import { useCallback, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fetchPostById } from '../../../services/postService'
 import { useQuery } from "@tanstack/react-query";
+import { useSupabase } from "../../../lib/supabase";
 
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id:string }>();
+  const supabase = useSupabase()
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['posts', id],
-    queryFn: () => fetchPostById(id),
+    queryFn: () => fetchPostById(id, supabase),
   })
 
   const detailedPost = posts.find((post) => post.id === id)
